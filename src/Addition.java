@@ -39,12 +39,12 @@ public class Addition { // program to read two inputted numbers as strings and d
             if (in1.length() == in2.length()) {
                 longer = commaLength(in1);
                 shorter = commaLength(in1);
-                spacing(longer, shorter);
+                spacing(longer, shorter); //although they are the same length, we still need to print an extra space before each operand
                 comma(in1);
                 System.out.println("+");
+                spacing(longer, shorter);
                 comma(in2);
-            }
-            if (in2.length() > in1.length()) { // if the 2nd number is longer than the first
+            } else if (in2.length() > in1.length()) { // if the 2nd number is longer than the first
                 longer = commaLength(in2); // get the length of the longer number
                 shorter = commaLength(in1);
                 spacing(longer, shorter);
@@ -52,8 +52,8 @@ public class Addition { // program to read two inputted numbers as strings and d
                 System.out.println("+");
                 comma(in2);
             } else {
-                longer = commaLength(in1); // get the length of the longer number
-                shorter = commaLength(in2);
+                longer = commaLength(in1); // get the length of the longer number after adding commas
+                shorter = commaLength(in2); //get the length of the shorter number after adding commas
                 comma(in1);
                 System.out.println("+");
                 spacing(longer, shorter);
@@ -67,8 +67,7 @@ public class Addition { // program to read two inputted numbers as strings and d
 
             if (in1.length() == in2.length()) {
                 resultEqualLength(in1, in2);
-            }
-            if (in2.length() > in1.length()) {
+            } else if (in2.length() > in1.length()) {
                 result(in2, in1);
             } else {
                 result(in1, in2);
@@ -84,6 +83,11 @@ public class Addition { // program to read two inputted numbers as strings and d
      * @param sh is the length (with commas) of the shorter number
      */
     public static void spacing(int l, int sh) {
+        if (l == sh) { // need an extra space just in case there is a carry later during addition
+            System.out.print(" ");
+            return;
+        }
+
         for (int i = 0; i < (l - sh); i++) {
             System.out.print(" ");
         }
@@ -180,82 +184,44 @@ public class Addition { // program to read two inputted numbers as strings and d
         }
     }
 
+    /**
+     * Handles the calculations if both numbers are the same length
+     *
+     * @param firstNumber  is the first number entered
+     * @param secondNumber is the second number entered
+     */
+
     public static void resultEqualLength(String firstNumber, String secondNumber) {
         char[] a = new char[firstNumber.length() + 1];
         int[] l = new int[firstNumber.length() + 1];
         int[] s = new int[firstNumber.length()];
-        int sum = 0, leadingZeros = s.length;
+        int sum = 0;
 
         // populate the arrays
         for (int i = 0; i < firstNumber.length(); i++) {
-            l[i] = firstNumber.charAt(i) - '0';
-        }
-        for (int i = 0; i < secondNumber.length(); i++, leadingZeros--) {
+            l[i + 1] = firstNumber.charAt(i) - '0';
             s[i] = secondNumber.charAt(i) - '0';
         }
-        for (int i = leadingZeros; i >= 0; i--) { //fill the rest of the array with 0
-            s[i] = 0;
+        l[0] = 0;
+
+
+        for (int i = firstNumber.length() - 1, j = firstNumber.length(); i >= 0; i--, j--) {
+            sum = l[i + 1] + s[i];
+            if (sum > 9) { // if the sum is 10 or greater, need to carry over the 1
+                a[j] = (char) ((sum % 10) + '0');
+                l[i]++;
+            } else {
+                a[j] = (char) (sum + '0');
+            }
         }
 
+        // filling in a[1] and a[0]
+        if (sum >= 10) {
+            a[1] = (char) ((sum % 10) + '0');
+            a[0] = '1';
+        } else
+            a[0] = '0';
 
-        int count = firstNumber.length() - 1; // tracks where we stopped filling in the char array
-
-        /*
-         * Starting from the last digit and working backwards, i is the index of the
-         * shorter string, j is the index of the char array currently being filled and k
-         * is the index of the longer string
-         */
-        if (firstNumber.length() != secondNumber.length()) {
-            for (int i = secondNumber.length() - 1, j = firstNumber.length(), k = firstNumber.length() - 1; i >= 0; i--, j--, k--) {
-                count--;
-                sum = l[k] + s[i];
-                if (sum > 9) { // if the sum is 10 or greater, need to carry over the 1
-                    a[j] = (char) ((sum % 10) + '0');
-                    l[k - 1]++;
-                } else {
-                    a[j] = (char) (sum + '0');
-                }
-            }
-
-
-            if (l[0] > 9) {
-                a[1] = (char) ((sum % 10) + '0');
-                a[0] = '1';
-            } else {
-                a[1] = (char) ((l[0]) + '0');
-                a[0] = '0';
-            }
-
-            for (int i = count; i > 0; i--) { // fill in the rest but stop at l[1] (dont fill in l[0])
-                a[i + 1] = (char) (l[i] + '0');
-            }
-
-            // filling in a[1] and a[0]
-            if (l[0] > 9) {
-                a[1] = (char) ((l[0] % 10) + '0');
-                a[0] = '1';
-            } else {
-                a[1] = (char) ((l[0]) + '0');
-                a[0] = '0';
-            }
-        } else { // if two string lengths were the same
-            for (int i = firstNumber.length() - 1, j = firstNumber.length(); i >= 0; i--, j--) {
-                sum = l[i] + s[i];
-                if (sum > 9) { // if the sum is 10 or greater, need to carry over the 1
-                    a[j] = (char) ((sum % 10) + '0');
-                    l[i - 1]++;
-                } else {
-                    a[j] = (char) (sum + '0');
-                }
-            }
-
-            // filling in a[1] and a[0]
-            if (l[0] > 9) {
-                a[1] = (char) ((sum % 10) + '0');
-                a[0] = '1';
-            } else
-                a[0] = '0';
-        }
 
         String r = "";
         if (a[0] != '0') { // if the first character in a is 1 then use the whole array
@@ -282,61 +248,39 @@ public class Addition { // program to read two inputted numbers as strings and d
      */
     public static void result(String longer, String shorter) {
         char[] a = new char[longer.length() + 1];
-        int[] l = new int[longer.length()];
+        int[] l = new int[longer.length() + 1];
         int[] s = new int[longer.length()];
-        int sum = 0, leadingZeros = shorter.length();
+        int sum = 0, leadingZeros = (longer.length() - shorter.length());
 
+
+        for (int i = leadingZeros; i > 0; i--) { //put leading zeroes to make the shorter string the same length
+            shorter = "0" + shorter;
+        }
         // populate the arrays
         for (int i = 0; i < longer.length(); i++) {
-            l[i] = longer.charAt(i) - '0';
+            l[i + 1] = longer.charAt(i) - '0';
+            s[i] = shorter.charAt(i) - '0';
         }
-        for (int i = (shorter.length()); i > 0; i--, leadingZeros--) {
-            s[i] = shorter.charAt(i - 1) - '0';
-        }
-        for (int i = leadingZeros; i >= 0; i--) { //fill the rest of the array with 0
-            s[i] = 0;
-        }
+        l[0] = 0;
 
 
-        int count = longer.length() - 1; // tracks where we stopped filling in the char array
-
-        /*
-         * Starting from the last digit and working backwards, i is the index of the
-         * shorter string, j is the index of the char array currently being filled and k
-         * is the index of the longer string
-         */
-
-            for (int i = shorter.length(), j = longer.length(), k = longer.length() - 1; i >= 0; i--, j--, k--) {
-                count--;
-                sum = l[k] + s[i];
-                if (sum > 9) { // if the sum is 10 or greater, need to carry over the 1
-                    a[j] = (char) ((sum % 10) + '0');
-                    l[k - 1]++;
-                } else {
-                    a[j] = (char) (sum + '0');
-                }
-            }
-
-            if (l[0] > 9) {
-                a[1] = (char) ((sum % 10) + '0');
-                a[0] = '1';
+        for (int i = longer.length() - 1, j = longer.length(); i >= 0; i--, j--) {
+            sum = l[i + 1] + s[i];
+            if (sum > 9) { // if the sum is 10 or greater, need to carry over the 1
+                a[j] = (char) ((sum % 10) + '0');
+                l[i]++;
             } else {
-                a[1] = (char) ((l[0]) + '0');
-                a[0] = '0';
+                a[j] = (char) (sum + '0');
             }
+        }
 
-            for (int i = count; i > 0; i--) { // fill in the rest but stop at l[1] (dont fill in l[0])
-                a[i + 1] = (char) (l[i] + '0');
-            }
+        // filling in a[1] and a[0]
+        if (sum >= 10) {
+            a[1] = (char) ((sum % 10) + '0');
+            a[0] = '1';
+        } else
+            a[0] = '0';
 
-            // filling in a[1] and a[0]
-            if (l[0] > 9) {
-                a[1] = (char) ((l[0] % 10) + '0');
-                a[0] = '1';
-            } else {
-                a[1] = (char) ((l[0]) + '0');
-                a[0] = '0';
-            }
 
         String r = "";
         if (a[0] != '0') { // if the first character in a is 1 then use the whole array
